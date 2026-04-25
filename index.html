@@ -1,0 +1,218 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Simulador realista para preparar la licencia C de armas: práctica, examen, repaso de fallos y estadísticas.">
+  <title>Licencia C | Simulador Realista</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <header class="hero panel">
+      <div class="hero-copy">
+        <p class="eyebrow">Preparación seria para vigilantes de seguridad</p>
+        <h1>Simulador Licencia C</h1>
+        <p>
+          Entrena con preguntas de nivel examen, repite trampas normativas, localiza tus áreas débiles y simula una prueba real sin ayudas.
+        </p>
+      </div>
+
+      <div class="hero-cards">
+        <article class="hero-stat">
+          <span>Banco</span>
+          <strong id="totalQuestions">0</strong>
+          <small>preguntas cargadas</small>
+        </article>
+        <article class="hero-stat">
+          <span>Precisión global</span>
+          <strong id="globalAccuracy">0%</strong>
+          <small id="globalAnswered">0 respuestas</small>
+        </article>
+        <article class="hero-stat">
+          <span>Fallos activos</span>
+          <strong id="activeMistakes">0</strong>
+          <small>pendientes de consolidar</small>
+        </article>
+        <article class="hero-stat accent">
+          <span>Último examen</span>
+          <strong id="lastExamBadge">Sin datos</strong>
+          <small id="lastExamMeta">30 min · 20 preguntas</small>
+        </article>
+      </div>
+    </header>
+
+    <main class="main-grid">
+      <aside class="panel sidebar">
+        <section class="sidebar-block">
+          <p class="block-label">Modos</p>
+          <div class="mode-grid">
+            <button class="mode-btn active" data-mode="practice">Práctica</button>
+            <button class="mode-btn" data-mode="exam">Examen real</button>
+            <button class="mode-btn" data-mode="mistakes">Solo fallos</button>
+            <button class="mode-btn" data-mode="difficult">Difíciles</button>
+            <button class="mode-btn" data-mode="intensive">Intensivo</button>
+          </div>
+        </section>
+
+        <section class="sidebar-block">
+          <p class="block-label">Filtro</p>
+          <label for="categorySelect">Tema</label>
+          <select id="categorySelect"></select>
+        </section>
+
+        <section class="sidebar-block exam-settings">
+          <p class="block-label">Configuración de examen</p>
+          <label for="passMarkInput">Mínimo aprobado</label>
+          <input id="passMarkInput" type="number" min="1" max="20" value="16">
+
+          <label class="toggle">
+            <input id="penaltyToggle" type="checkbox">
+            <span>Aplicar penalización por fallo (-0,33)</span>
+          </label>
+
+          <button id="startExamBtn" class="primary-btn">Iniciar examen de 20 preguntas</button>
+          <p class="muted-note">Simulación de 30 minutos, sin feedback hasta el final.</p>
+        </section>
+
+        <section class="sidebar-block">
+          <p class="block-label">Rendimiento</p>
+          <div class="metric-list">
+            <div class="metric-row">
+              <span>Aciertos</span>
+              <strong id="correctAnswers">0</strong>
+            </div>
+            <div class="metric-row">
+              <span>Errores</span>
+              <strong id="wrongAnswers">0</strong>
+            </div>
+            <div class="metric-row">
+              <span>Dominadas</span>
+              <strong id="masteredQuestions">0</strong>
+            </div>
+            <div class="metric-row">
+              <span>Sesiones</span>
+              <strong id="sessionCount">0</strong>
+            </div>
+          </div>
+
+          <button id="resetProgressBtn" class="ghost-btn">Reiniciar progreso</button>
+        </section>
+      </aside>
+
+      <section class="workspace">
+        <section class="panel stage">
+          <div class="stage-head">
+            <div>
+              <p id="modeLabel" class="eyebrow">Modo práctica</p>
+              <h2 id="stageTitle">Aprendizaje con corrección inmediata</h2>
+            </div>
+
+            <div class="stage-meta">
+              <span id="questionCounter" class="chip">Pregunta 0 / 0</span>
+              <span id="timer" class="chip accent hidden">30:00</span>
+            </div>
+          </div>
+
+          <div id="statusMessage" class="status hidden"></div>
+
+          <article id="questionCard" class="question-card hidden">
+            <div class="question-header">
+              <span id="questionCategory" class="pill">Tema</span>
+              <span id="questionDifficulty" class="pill outline">Alta</span>
+              <span id="questionSource" class="pill outline">Referencia</span>
+            </div>
+
+            <h3 id="questionText"></h3>
+            <div id="optionsList" class="options-list"></div>
+
+            <section id="feedbackPanel" class="feedback hidden">
+              <p id="feedbackTitle" class="feedback-title"></p>
+              <p id="feedbackExplanation"></p>
+            </section>
+
+            <div class="actions">
+              <button id="nextBtn" class="primary-btn">Siguiente</button>
+            </div>
+          </article>
+
+          <section id="resultsCard" class="results-card hidden">
+            <div class="results-top">
+              <div>
+                <p class="eyebrow">Resultado</p>
+                <h3 id="resultsTitle">Examen completado</h3>
+              </div>
+              <span id="resultsOutcome" class="result-chip">Pendiente</span>
+            </div>
+
+            <div class="results-grid">
+              <article>
+                <span>Aciertos netos</span>
+                <strong id="resultsScore">0 / 20</strong>
+              </article>
+              <article>
+                <span>Porcentaje</span>
+                <strong id="resultsPercent">0%</strong>
+              </article>
+              <article>
+                <span>Fallos</span>
+                <strong id="resultsWrong">0</strong>
+              </article>
+              <article>
+                <span>Penalización</span>
+                <strong id="resultsPenalty">No</strong>
+              </article>
+            </div>
+
+            <div class="results-actions">
+              <button id="retryExamBtn" class="primary-btn">Repetir simulacro</button>
+              <button id="reviewMistakesBtn" class="secondary-btn">Repasar fallos</button>
+            </div>
+
+            <div id="resultsReview" class="results-review"></div>
+          </section>
+
+          <section id="emptyState" class="empty-state">
+            <p class="eyebrow">Listo para empezar</p>
+            <h3>Elige un modo y empieza a entrenar</h3>
+            <p>
+              La app adapta las sesiones a tu rendimiento, prioriza tus errores y refuerza preguntas normativas de detalle.
+            </p>
+          </section>
+        </section>
+
+        <section class="analytics-grid">
+          <section class="panel analytics-card">
+            <div class="card-head">
+              <h3>Áreas débiles</h3>
+              <span class="card-hint">por porcentaje real</span>
+            </div>
+            <div id="weakAreas" class="stack-list"></div>
+          </section>
+
+          <section class="panel analytics-card">
+            <div class="card-head">
+              <h3>Evolución reciente</h3>
+              <span class="card-hint">últimos 10 exámenes</span>
+            </div>
+            <div id="examHistory" class="history-bars"></div>
+          </section>
+
+          <section class="panel analytics-card">
+            <div class="card-head">
+              <h3>Radar de entrenamiento</h3>
+              <span class="card-hint">qué reforzar ahora</span>
+            </div>
+            <div id="trainingRadar" class="stack-list"></div>
+          </section>
+        </section>
+      </section>
+    </main>
+  </div>
+
+  <script src="data/questions.js" defer></script>
+  <script src="script.js" defer></script>
+</body>
+</html>
+
+
